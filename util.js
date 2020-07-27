@@ -153,6 +153,24 @@
         history.pushState({"content": content}, "", "#" + content)
     }
 
+    function loadGist(id, filename) {
+        fetch(`https://api.github.com/gists/${id}`)
+            .then(res => res.json())
+            .then(gist => {
+                if (filename == null) {
+                    return;
+                }
+
+                const data = gist.files[filename].content;
+                updateEditor(data);
+            });
+    }
+
+    function updateEditor(value) {
+        editor.getSession().setValue(value);
+        return editor;
+    }
+
     function updateOutput(result) {
         if (formatEl.value === "svg") {
             document.querySelector("#raw").classList.remove("disabled");
@@ -238,7 +256,7 @@
 
     window.onpopstate = function(event) {
         if (event.state != null && event.state.content != undefined) {
-            editor.getSession().setValue(decodeURIComponent(event.state.content));
+            updateEditor(decodeURIComponent(event.state.content));
         }
     };
 
@@ -250,8 +268,17 @@
 
     /* come from sharing */
     if (location.hash.length > 1) {
-        var value = decodeURIComponent(location.hash.substring(1));
-        editor.getSession().setValue(value);
+        const value = decodeURIComponent(location.hash.substring(1));
+        var gist = /^([a-z0-9]{20,})(?:\/([^\/:]+))?$/.exec(value);
+        if (gist == null) {
+            gist = /^([a-z0-9]{20,})(?:#file-([^\/:]+))?$/.exec(value);
+            gist[2] = gist[2].replace(/-([^-]+)$/, (m, ext) => `.${ext}`);
+        }
+        if (gist != null) {
+            loadGist(gist[1], gist[2]);
+        } else {
+            updateEditor(value);
+        }
     }
 
     /* Init */
