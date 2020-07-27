@@ -250,7 +250,8 @@
 
     /* come from sharing */
     if (location.hash.length > 1) {
-        editor.getSession().setValue(decodeURIComponent(location.hash.substring(1)));
+        var value = decodeURIComponent(location.hash.substring(1));
+        editor.getSession().setValue(value);
     }
 
     /* Init */
