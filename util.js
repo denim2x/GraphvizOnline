@@ -1,10 +1,8 @@
-(function (document) {
-    //http://stackoverflow.com/a/10372280/398634
-    window.URL = window.URL || window.webkitURL;
-    var el_stetus = document.getElementById("status"),
-        t_stetus = -1,
+(function (document, global) {
+    var el_status = document.getElementById("status"),
+        t_status = -1,
         reviewer = document.getElementById("review"),
-        scale = window.devicePixelRatio || 1,
+        scale = devicePixelRatio || 1,
         editor = ace.edit("editor"),
         lastHD = -1,
         worker = null,
@@ -19,11 +17,11 @@
 
     function show_status(text, hide) {
         hide = hide || 0;
-        clearTimeout(t_stetus);
-        el_stetus.innerHTML = text;
+        clearTimeout(t_status);
+        el_status.innerHTML = text;
         if (hide) {
-            t_stetus = setTimeout(function () {
-                el_stetus.innerHTML = "";
+            t_status = setTimeout(function () {
+                el_status.innerHTML = "";
             }, hide);
         }
     }
@@ -254,7 +252,7 @@
         lastHD = setTimeout(renderGraph, 1500);
     });
 
-    window.onpopstate = function(event) {
+    global.onpopstate = function(event) {
         if (event.state != null && event.state.content != undefined) {
             updateEditor(decodeURIComponent(event.state.content));
         }
@@ -285,4 +283,4 @@
     if (editor.getValue()) {
         renderGraph();
     }
-})(document);
+})(document, this);
